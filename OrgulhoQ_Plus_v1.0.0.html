@@ -1,0 +1,2455 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <meta name="description" content="Pride+ - Sistema de Avaliação do Orgulho LGBTQIA+">
+    <meta name="author" content="Allysson Dantas">
+    <meta name="version" content="1.0.0">
+    <meta name="date" content="2025">
+    <title>Pride+ | Avaliação do Orgulho LGBTQIA+</title>
+
+    <!--
+    ============================================================
+    Pride+ - Sistema de Avaliação do Orgulho LGBTQIA+
+    Versão: 1.0.0
+    Autor: Allysson Dantas, PhD
+    Instituição: Instituto de Ciências Sociais, Universidade de Lisboa
+    Ano: 2025
+    Linguagem: HTML5, CSS3, JavaScript (ES6+)
+    Plataforma: Multiplataforma (navegador web)
+    Licença: Todos os direitos reservados
+    Baseado na: Escala de Orgulho LGBTQIA+
+    ============================================================
+    -->
+
+    <style>
+        /* ===== VARIÁVEIS E RESET ===== */
+        :root {
+            --pride-red:      #FF0018;
+            --pride-orange:   #FFA52C;
+            --pride-yellow:   #FFDD00;
+            --pride-green:    #008018;
+            --pride-blue:     #0044EE;
+            --pride-purple:   #86007D;
+            --pride-pink:     #FF69B4;
+            --pride-sky:      #55CDFC;
+
+            --bg-primary:     #0d1117;
+            --bg-secondary:   #161b22;
+            --bg-card:        #1c2128;
+            --text-primary:   #e6edf3;
+            --text-secondary: #8b949e;
+            --border-color:   #30363d;
+            --accent-purple:  #8B5CF6;
+            --accent-pink:    #EC4899;
+        }
+
+        *, *::before, *::after {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        html {
+            scroll-behavior: smooth;
+        }
+
+        body {
+            font-family: 'Segoe UI', system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
+            background: var(--bg-primary);
+            color: var(--text-primary);
+            min-height: 100vh;
+            overflow-x: hidden;
+            line-height: 1.6;
+        }
+
+        /* ===== ANIMAÇÕES ===== */
+        @keyframes rainbowShift {
+            0%   { background-position: 0% 50%; }
+            50%  { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
+        }
+
+        @keyframes floatAnim {
+            0%, 100% { transform: translateY(0px) rotate(0deg); }
+            33%       { transform: translateY(-12px) rotate(2deg); }
+            66%       { transform: translateY(-6px) rotate(-2deg); }
+        }
+
+        @keyframes fadeInUp {
+            from { opacity: 0; transform: translateY(24px); }
+            to   { opacity: 1; transform: translateY(0); }
+        }
+
+        @keyframes slideInRight {
+            from { opacity: 0; transform: translateX(30px); }
+            to   { opacity: 1; transform: translateX(0); }
+        }
+
+        @keyframes particleRise {
+            0%   { transform: translateY(100vh) rotate(0deg); opacity: 0; }
+            10%  { opacity: 0.12; }
+            90%  { opacity: 0.12; }
+            100% { transform: translateY(-100px) rotate(720deg); opacity: 0; }
+        }
+
+        @keyframes confettiFall {
+            0%   { transform: translateY(-30px) rotate(0deg) scale(1); opacity: 1; }
+            100% { transform: translateY(110vh) rotate(900deg) scale(0.5); opacity: 0; }
+        }
+
+        @keyframes pulseGlow {
+            0%, 100% { box-shadow: 0 0 0 0 rgba(139, 92, 246, 0); }
+            50%       { box-shadow: 0 0 20px 4px rgba(139, 92, 246, 0.35); }
+        }
+
+        @keyframes shimmer {
+            0%   { background-position: -200% 0; }
+            100% { background-position: 200% 0; }
+        }
+
+        /* ===== BARRA ARCO-ÍRIS ===== */
+        .rainbow-bar {
+            height: 5px;
+            background: linear-gradient(90deg,
+                var(--pride-red), var(--pride-orange), var(--pride-yellow),
+                var(--pride-green), var(--pride-blue), var(--pride-purple)
+            );
+            background-size: 300% 300%;
+            animation: rainbowShift 4s ease infinite;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+
+        /* ===== PARTÍCULAS DE FUNDO ===== */
+        #particles {
+            position: fixed;
+            inset: 0;
+            pointer-events: none;
+            z-index: 0;
+            overflow: hidden;
+        }
+
+        .particle {
+            position: absolute;
+            border-radius: 50%;
+            animation: particleRise linear infinite;
+        }
+
+        /* ===== CONFETTI ===== */
+        #confetti {
+            position: fixed;
+            inset: 0;
+            pointer-events: none;
+            z-index: 9999;
+            overflow: hidden;
+        }
+
+        .confetti-piece {
+            position: absolute;
+            animation: confettiFall ease-out forwards;
+        }
+
+        /* ===== LAYOUT ===== */
+        .container {
+            max-width: 780px;
+            margin: 0 auto;
+            padding: 24px 20px 48px;
+            position: relative;
+            z-index: 1;
+        }
+
+        /* ===== TELAS ===== */
+        .screen {
+            display: none;
+        }
+
+        .screen.active {
+            display: block;
+            animation: fadeInUp 0.5s ease;
+        }
+
+        /* ===== TELA DE BOAS-VINDAS ===== */
+        .welcome-hero {
+            text-align: center;
+            padding: 56px 20px 36px;
+        }
+
+        .app-emoji {
+            font-size: 88px;
+            display: block;
+            margin-bottom: 18px;
+            animation: floatAnim 4s ease-in-out infinite;
+        }
+
+        .app-title {
+            font-size: 3.2rem;
+            font-weight: 900;
+            letter-spacing: -1px;
+            background: linear-gradient(135deg,
+                var(--pride-red), var(--pride-orange), var(--pride-yellow),
+                var(--pride-green), var(--pride-blue), var(--pride-purple)
+            );
+            background-size: 300% 300%;
+            animation: rainbowShift 4s ease infinite;
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            margin-bottom: 8px;
+        }
+
+        .app-subtitle {
+            color: var(--text-secondary);
+            font-size: 1.1rem;
+            margin-bottom: 6px;
+        }
+
+        .app-version {
+            color: var(--border-color);
+            font-size: 0.78rem;
+            letter-spacing: 1px;
+            margin-bottom: 28px;
+        }
+
+        .pride-emoji-row {
+            font-size: 1.8rem;
+            letter-spacing: 6px;
+            margin-bottom: 0;
+        }
+
+        /* ===== CARDS ===== */
+        .card {
+            background: var(--bg-card);
+            border: 1px solid var(--border-color);
+            border-radius: 18px;
+            padding: 28px 30px;
+            margin-bottom: 18px;
+            transition: border-color 0.3s ease;
+        }
+
+        .card:hover {
+            border-color: rgba(139, 92, 246, 0.4);
+        }
+
+        .card-label {
+            font-size: 0.75rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 1.5px;
+            color: var(--pride-pink);
+            margin-bottom: 12px;
+        }
+
+        .card p {
+            color: var(--text-secondary);
+            font-size: 0.97rem;
+            line-height: 1.7;
+            margin-bottom: 8px;
+        }
+
+        .card p:last-child {
+            margin-bottom: 0;
+        }
+
+        /* ===== DESTAQUE DA INSTRUÇÃO ===== */
+        .instruction-phrase {
+            background: rgba(139, 92, 246, 0.12);
+            border: 1px solid rgba(139, 92, 246, 0.3);
+            border-radius: 10px;
+            padding: 14px 18px;
+            margin: 14px 0;
+            color: #c4a4ff;
+            font-style: italic;
+            font-size: 1rem;
+        }
+
+        /* ===== ESCALA DEMO ===== */
+        .scale-demo {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 8px;
+            margin-top: 12px;
+        }
+
+        .scale-demo-label {
+            font-size: 0.82rem;
+            color: var(--text-secondary);
+        }
+
+        .scale-demo-label:last-child {
+            text-align: right;
+        }
+
+        /* ===== NOTA ===== */
+        .note-box {
+            background: rgba(255, 165, 44, 0.08);
+            border: 1px solid rgba(255, 165, 44, 0.25);
+            border-radius: 12px;
+            padding: 14px 18px;
+            margin-bottom: 18px;
+        }
+
+        .note-box p {
+            color: var(--text-secondary);
+            font-size: 0.84rem;
+            line-height: 1.6;
+        }
+
+        /* ===== BOTÃO PRIMÁRIO ===== */
+        .btn-primary {
+            width: 100%;
+            padding: 18px 24px;
+            background: linear-gradient(135deg, var(--accent-purple), var(--accent-pink));
+            color: white;
+            border: none;
+            border-radius: 14px;
+            font-size: 1.05rem;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-top: 8px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .btn-primary::after {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background: linear-gradient(135deg, rgba(255,255,255,0.15), transparent);
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 12px 32px rgba(139, 92, 246, 0.45);
+        }
+
+        .btn-primary:hover::after {
+            opacity: 1;
+        }
+
+        .btn-primary:active {
+            transform: translateY(-1px);
+        }
+
+        /* ===== BARRA DE PROGRESSO ===== */
+        .progress-wrapper {
+            background: var(--bg-card);
+            border: 1px solid var(--border-color);
+            border-radius: 16px;
+            padding: 18px 24px;
+            margin-bottom: 22px;
+        }
+
+        .progress-meta {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 10px;
+        }
+
+        .progress-meta-text {
+            color: var(--text-secondary);
+            font-size: 0.88rem;
+        }
+
+        .progress-pct {
+            color: var(--accent-purple);
+            font-weight: 700;
+            font-size: 0.88rem;
+        }
+
+        .progress-track {
+            height: 9px;
+            background: var(--bg-secondary);
+            border-radius: 5px;
+            overflow: hidden;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, var(--accent-purple), var(--accent-pink));
+            border-radius: 5px;
+            transition: width 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        /* ===== CARD DA QUESTÃO ===== */
+        .question-card {
+            background: var(--bg-card);
+            border: 1px solid var(--border-color);
+            border-radius: 20px;
+            padding: 36px 32px;
+            margin-bottom: 22px;
+            animation: slideInRight 0.4s ease;
+        }
+
+        .question-intro {
+            color: var(--text-secondary);
+            font-size: 0.92rem;
+            font-style: italic;
+            margin-bottom: 6px;
+        }
+
+        .question-emphasis {
+            color: var(--pride-pink);
+        }
+
+        .question-text {
+            font-size: 1.25rem;
+            font-weight: 600;
+            color: var(--text-primary);
+            line-height: 1.55;
+        }
+
+        /* ===== BOTÕES DE AVALIAÇÃO ===== */
+        .rating-wrapper {
+            margin-top: 32px;
+        }
+
+        .rating-endpoints {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 10px;
+        }
+
+        .rating-endpoint {
+            font-size: 0.8rem;
+            color: var(--text-secondary);
+        }
+
+        .rating-grid {
+            display: grid;
+            grid-template-columns: repeat(6, 1fr);
+            gap: 10px;
+        }
+
+        .rating-btn {
+            aspect-ratio: 1;
+            border: 2px solid var(--border-color);
+            border-radius: 14px;
+            background: var(--bg-secondary);
+            color: var(--text-primary);
+            font-size: 1.15rem;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.25s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            user-select: none;
+            -webkit-user-select: none;
+        }
+
+        .rating-btn:hover {
+            border-color: var(--accent-purple);
+            background: rgba(139, 92, 246, 0.14);
+            transform: translateY(-3px) scale(1.06);
+        }
+
+        .rating-btn.selected {
+            border-color: transparent;
+            color: white;
+            transform: translateY(-3px) scale(1.12);
+            box-shadow: 0 8px 22px rgba(0,0,0,0.45);
+            animation: pulseGlow 1.5s ease infinite;
+        }
+
+        .rating-btn[data-val="1"].selected { background: linear-gradient(135deg, #FF0018, #FF5555); }
+        .rating-btn[data-val="2"].selected { background: linear-gradient(135deg, #FFA52C, #FFB84D); }
+        .rating-btn[data-val="3"].selected { background: linear-gradient(135deg, #DDBB00, #FFD700); color: #1a1a1a; }
+        .rating-btn[data-val="4"].selected { background: linear-gradient(135deg, #007518, #00A020); }
+        .rating-btn[data-val="5"].selected { background: linear-gradient(135deg, #0033EE, #4466FF); }
+        .rating-btn[data-val="6"].selected { background: linear-gradient(135deg, #86007D, #CC22CC); }
+
+        /* ===== NAVEGAÇÃO ===== */
+        .nav-row {
+            display: flex;
+            gap: 12px;
+        }
+
+        .btn-nav {
+            flex: 1;
+            padding: 16px;
+            border-radius: 12px;
+            font-size: 0.97rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.25s ease;
+            border: none;
+        }
+
+        .btn-back {
+            background: var(--bg-card);
+            border: 1px solid var(--border-color);
+            color: var(--text-secondary);
+        }
+
+        .btn-back:hover {
+            border-color: var(--accent-purple);
+            color: var(--text-primary);
+        }
+
+        .btn-next {
+            background: linear-gradient(135deg, var(--accent-purple), var(--accent-pink));
+            color: white;
+        }
+
+        .btn-next:hover:not(:disabled) {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 22px rgba(139, 92, 246, 0.42);
+        }
+
+        .btn-next:disabled {
+            opacity: 0.35;
+            cursor: not-allowed;
+        }
+
+        /* ===== TELA DE RESULTADOS ===== */
+        .results-hero {
+            text-align: center;
+            padding: 40px 0 28px;
+        }
+
+        .results-icon-big {
+            font-size: 84px;
+            display: block;
+            margin-bottom: 16px;
+            animation: floatAnim 4s ease-in-out infinite;
+        }
+
+        .results-title {
+            font-size: 2rem;
+            font-weight: 800;
+            margin-bottom: 6px;
+        }
+
+        .results-sub {
+            color: var(--text-secondary);
+            font-size: 0.95rem;
+        }
+
+        /* ===== DISPLAY DE PONTUAÇÃO ===== */
+        .score-card {
+            background: var(--bg-card);
+            border: 1px solid var(--border-color);
+            border-radius: 20px;
+            padding: 36px 30px;
+            text-align: center;
+            margin-bottom: 18px;
+        }
+
+        .score-label {
+            font-size: 0.78rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 1.5px;
+            color: var(--text-secondary);
+            margin-bottom: 12px;
+        }
+
+        .score-number {
+            font-size: 5.5rem;
+            font-weight: 900;
+            line-height: 1;
+            background: linear-gradient(135deg, var(--accent-purple), var(--accent-pink));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .score-denom {
+            color: var(--text-secondary);
+            font-size: 1.35rem;
+            margin-top: 4px;
+        }
+
+        .score-progress-track {
+            height: 18px;
+            background: var(--bg-secondary);
+            border-radius: 9px;
+            overflow: hidden;
+            margin: 22px 0 16px;
+        }
+
+        .score-progress-fill {
+            height: 100%;
+            border-radius: 9px;
+            background: linear-gradient(90deg,
+                var(--pride-red), var(--pride-orange), var(--pride-yellow),
+                var(--pride-green), var(--pride-blue), var(--pride-purple)
+            );
+            transition: width 1.8s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .level-pill {
+            display: inline-block;
+            padding: 7px 20px;
+            border-radius: 22px;
+            font-weight: 700;
+            font-size: 0.95rem;
+        }
+
+        .lvl-low      { background: rgba(255,0,24,0.15);   color: #FF5555; border: 1px solid rgba(255,0,24,0.4); }
+        .lvl-moderate { background: rgba(255,165,44,0.15); color: #FFA52C; border: 1px solid rgba(255,165,44,0.4); }
+        .lvl-high     { background: rgba(0,128,24,0.15);   color: #00BB33; border: 1px solid rgba(0,128,24,0.4); }
+        .lvl-very-high{ background: rgba(139,92,246,0.15); color: #A07AFF; border: 1px solid rgba(139,92,246,0.4); }
+
+        /* ===== INTERPRETAÇÃO ===== */
+        .interp-card {
+            background: var(--bg-card);
+            border: 1px solid var(--border-color);
+            border-radius: 18px;
+            padding: 26px 28px;
+            margin-bottom: 18px;
+        }
+
+        .interp-card-label {
+            font-size: 0.75rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 1.5px;
+            color: var(--accent-purple);
+            margin-bottom: 14px;
+        }
+
+        .interp-text {
+            color: var(--text-secondary);
+            font-size: 0.97rem;
+            line-height: 1.75;
+        }
+
+        /* ===== RESUMO DE ITENS ===== */
+        .items-list {
+            display: flex;
+            flex-direction: column;
+            gap: 14px;
+        }
+
+        .item-row {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+        }
+
+        .item-lbl {
+            color: var(--text-secondary);
+            font-size: 0.82rem;
+            width: 62px;
+            flex-shrink: 0;
+        }
+
+        .item-track {
+            flex: 1;
+            height: 9px;
+            background: var(--bg-secondary);
+            border-radius: 5px;
+            overflow: hidden;
+        }
+
+        .item-fill {
+            height: 100%;
+            border-radius: 5px;
+            transition: width 1.2s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .item-val {
+            color: var(--text-primary);
+            font-weight: 700;
+            font-size: 0.95rem;
+            width: 18px;
+            text-align: right;
+            flex-shrink: 0;
+        }
+
+        /* ===== BOTÃO REINICIAR ===== */
+        .btn-restart {
+            width: 100%;
+            padding: 18px 24px;
+            background: linear-gradient(135deg, var(--accent-purple), var(--accent-pink));
+            color: white;
+            border: none;
+            border-radius: 14px;
+            font-size: 1.05rem;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin-top: 8px;
+        }
+
+        .btn-restart:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 12px 32px rgba(139, 92, 246, 0.45);
+        }
+
+        /* ===== FOOTER ===== */
+        .footer {
+            text-align: center;
+            padding: 28px 20px 20px;
+            color: var(--text-secondary);
+            font-size: 0.78rem;
+            border-top: 1px solid var(--border-color);
+            margin-top: 36px;
+            line-height: 1.8;
+        }
+
+        .footer strong {
+            color: var(--text-primary);
+        }
+
+        /* ===== DIVISOR COM GRADIENTE ===== */
+        .gradient-divider {
+            height: 1px;
+            background: linear-gradient(90deg, transparent, var(--border-color), transparent);
+            margin: 20px 0;
+        }
+
+        /* ===== BADGE DE QUESTÃO ===== */
+        .question-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            background: rgba(139, 92, 246, 0.12);
+            border: 1px solid rgba(139, 92, 246, 0.25);
+            border-radius: 8px;
+            padding: 4px 12px;
+            font-size: 0.8rem;
+            color: #c4a4ff;
+            margin-bottom: 16px;
+        }
+
+        /* ===== TERMÔMETRO ===== */
+        .thermo-layout {
+            display: flex;
+            align-items: center;
+            gap: 32px;
+            padding: 10px 0;
+        }
+
+        .thermo-wrap {
+            display: flex;
+            align-items: stretch;
+            gap: 10px;
+            flex-shrink: 0;
+        }
+
+        .thermo-scale-labels {
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            align-items: flex-end;
+            height: 210px;
+            padding-bottom: 28px;
+        }
+
+        .thermo-scale-labels span {
+            font-size: 0.72rem;
+            color: var(--text-secondary);
+            line-height: 1;
+        }
+
+        .thermo-body {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .thermo-tube {
+            width: 22px;
+            height: 180px;
+            background: var(--bg-secondary);
+            border-radius: 11px 11px 0 0;
+            overflow: hidden;
+            position: relative;
+            border: 2px solid var(--border-color);
+            border-bottom: none;
+        }
+
+        .thermo-mercury {
+            position: absolute;
+            bottom: 0;
+            width: 100%;
+            background: linear-gradient(to top,
+                #FF0018 0%, #FF4400 20%,
+                #FFA52C 40%, #FFDD00 60%,
+                #009922 75%, #0055EE 88%,
+                #8B5CF6 100%
+            );
+            transition: height 2s cubic-bezier(0.34, 1.2, 0.64, 1);
+            border-radius: 0 0 0 0;
+        }
+
+        .thermo-bulb {
+            width: 36px;
+            height: 36px;
+            background: radial-gradient(circle at 35% 35%, #FF6666, #FF0018);
+            border-radius: 50%;
+            border: 2px solid var(--border-color);
+            margin-top: -2px;
+            box-shadow: 0 0 12px rgba(255, 0, 24, 0.5);
+            transition: box-shadow 2s ease;
+        }
+
+        .thermo-bulb.hot {
+            box-shadow: 0 0 24px rgba(255, 0, 24, 0.8), 0 0 48px rgba(255, 100, 0, 0.4);
+        }
+
+        .thermo-info {
+            flex: 1;
+            text-align: center;
+        }
+
+        .pomp-number {
+            font-size: 5rem;
+            font-weight: 900;
+            line-height: 1;
+            background: linear-gradient(135deg, var(--accent-purple), var(--accent-pink));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            margin: 8px 0 2px;
+        }
+
+        .pomp-unit {
+            color: var(--text-secondary);
+            font-size: 1rem;
+            margin-bottom: 10px;
+        }
+
+        .raw-score-note {
+            font-size: 0.8rem;
+            color: var(--text-secondary);
+            margin-bottom: 16px;
+            background: var(--bg-secondary);
+            display: inline-block;
+            padding: 4px 12px;
+            border-radius: 8px;
+        }
+
+        /* ===== ITEM COM TEXTO COMPLETO (resultados) ===== */
+        .item-row-full {
+            margin-bottom: 20px;
+            padding-bottom: 20px;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .item-row-full:last-child {
+            border-bottom: none;
+            margin-bottom: 0;
+            padding-bottom: 0;
+        }
+
+        .item-header-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 6px;
+        }
+
+        .item-lbl-sm {
+            font-size: 0.78rem;
+            font-weight: 700;
+            color: var(--text-secondary);
+            text-transform: uppercase;
+            letter-spacing: 0.8px;
+        }
+
+        .item-pct-val {
+            font-size: 1rem;
+            font-weight: 800;
+        }
+
+        .item-text-full {
+            font-size: 0.88rem;
+            color: var(--text-secondary);
+            line-height: 1.55;
+            margin-bottom: 10px;
+            font-style: italic;
+        }
+
+        /* ===== CONTADOR DE DADOS ===== */
+        .data-counter-box {
+            background: rgba(139, 92, 246, 0.08);
+            border: 1px solid rgba(139, 92, 246, 0.2);
+            border-radius: 10px;
+            padding: 10px 16px;
+            text-align: center;
+            margin-bottom: 14px;
+            font-size: 0.85rem;
+            color: var(--text-secondary);
+        }
+
+        .data-counter-box strong {
+            color: var(--accent-purple);
+        }
+
+        /* ===== BOTÃO LIMPAR ===== */
+        .btn-clear {
+            width: 100%;
+            padding: 12px 24px;
+            background: transparent;
+            border: 1px solid rgba(239, 68, 68, 0.35);
+            color: rgba(239, 68, 68, 0.8);
+            border-radius: 12px;
+            font-size: 0.88rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .btn-clear:hover {
+            background: rgba(239, 68, 68, 0.1);
+            border-color: rgba(239, 68, 68, 0.6);
+            color: rgb(239, 68, 68);
+        }
+
+        /* ===== BOTÕES DE AÇÃO (resultados) ===== */
+        .results-actions {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            margin-top: 8px;
+        }
+
+        .btn-export {
+            width: 100%;
+            padding: 16px 24px;
+            background: linear-gradient(135deg, #059669, #10B981);
+            color: white;
+            border: none;
+            border-radius: 14px;
+            font-size: 1rem;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .btn-export:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 10px 28px rgba(5, 150, 105, 0.45);
+        }
+
+        /* ===== CONSENTIMENTO ===== */
+        .consent-text {
+            font-size: 0.78rem;
+            color: var(--text-secondary);
+            line-height: 1.6;
+            text-align: center;
+            margin-top: 12px;
+            padding: 0 8px;
+        }
+
+        /* ===== INDICADOR DE ETAPAS ===== */
+        .step-indicator {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0;
+            margin: 20px 0 6px;
+        }
+
+        .step {
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            border: 2px solid var(--border-color);
+            background: var(--bg-card);
+            color: var(--text-secondary);
+            font-size: 0.82rem;
+            font-weight: 700;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+            transition: all 0.3s ease;
+        }
+
+        .step.active {
+            border-color: var(--accent-purple);
+            background: var(--accent-purple);
+            color: white;
+        }
+
+        .step.done {
+            border-color: #059669;
+            background: #059669;
+            color: white;
+        }
+
+        .step-line {
+            flex: 1;
+            height: 2px;
+            background: var(--border-color);
+            max-width: 60px;
+        }
+
+        .step-label {
+            text-align: center;
+            color: var(--text-secondary);
+            font-size: 0.85rem;
+            margin-bottom: 20px;
+        }
+
+        /* ===== SOCIODEMOGRÁFICO ===== */
+        .socio-card {
+            margin-bottom: 16px;
+        }
+
+        /* Slider de idade */
+        .slider-row {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin: 14px 0 10px;
+        }
+
+        .slider-min, .slider-max {
+            font-size: 0.82rem;
+            color: var(--text-secondary);
+            flex-shrink: 0;
+        }
+
+        .age-slider {
+            flex: 1;
+            -webkit-appearance: none;
+            height: 6px;
+            background: linear-gradient(90deg, var(--accent-purple), var(--accent-pink));
+            border-radius: 3px;
+            outline: none;
+            cursor: pointer;
+        }
+
+        .age-slider::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            width: 22px;
+            height: 22px;
+            border-radius: 50%;
+            background: white;
+            border: 3px solid var(--accent-purple);
+            cursor: pointer;
+            box-shadow: 0 2px 8px rgba(139, 92, 246, 0.4);
+            transition: transform 0.15s ease;
+        }
+
+        .age-slider::-webkit-slider-thumb:active {
+            transform: scale(1.2);
+        }
+
+        .age-slider::-moz-range-thumb {
+            width: 22px;
+            height: 22px;
+            border-radius: 50%;
+            background: white;
+            border: 3px solid var(--accent-purple);
+            cursor: pointer;
+        }
+
+        .age-display {
+            text-align: center;
+            margin-top: 4px;
+        }
+
+        #age-value {
+            font-size: 2.2rem;
+            font-weight: 800;
+            background: linear-gradient(135deg, var(--accent-purple), var(--accent-pink));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .age-unit {
+            font-size: 0.9rem;
+            color: var(--text-secondary);
+            margin-left: 4px;
+        }
+
+        /* Radio cards */
+        .radio-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 10px;
+            margin-top: 12px;
+        }
+
+        .radio-grid-3 {
+            grid-template-columns: repeat(3, 1fr);
+        }
+
+        .radio-card {
+            padding: 12px 8px;
+            background: var(--bg-secondary);
+            border: 2px solid var(--border-color);
+            border-radius: 12px;
+            color: var(--text-secondary);
+            font-size: 0.88rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.25s ease;
+            text-align: center;
+            line-height: 1.3;
+        }
+
+        .radio-card:hover {
+            border-color: var(--accent-purple);
+            color: var(--text-primary);
+        }
+
+        .radio-card.selected {
+            border-color: var(--accent-purple);
+            background: rgba(139, 92, 246, 0.18);
+            color: white;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 14px rgba(139, 92, 246, 0.3);
+        }
+
+        .socio-error {
+            font-size: 0.82rem;
+            color: #EF4444;
+            text-align: center;
+            margin-bottom: 14px;
+            display: none;
+        }
+
+        /* ===== NOTA PERCENTIL ===== */
+        .percentile-note {
+            font-size: 0.72rem;
+            color: var(--text-secondary);
+            margin-top: 10px;
+            opacity: 0.6;
+        }
+
+        /* ===== ACESSO ADMIN DISCRETO ===== */
+        .admin-access-row {
+            display: flex;
+            justify-content: center;
+            margin-top: 6px;
+            margin-bottom: 4px;
+        }
+
+        .btn-admin-lock {
+            background: none;
+            border: none;
+            cursor: pointer;
+            font-size: 0.85rem;
+            opacity: 0.18;
+            transition: opacity 0.3s ease;
+            padding: 6px 10px;
+            border-radius: 8px;
+        }
+
+        .btn-admin-lock:hover {
+            opacity: 0.55;
+        }
+
+        /* ===== MODAL ADMIN ===== */
+        .admin-overlay {
+            display: none;
+            position: fixed;
+            inset: 0;
+            background: rgba(0, 0, 0, 0.72);
+            z-index: 9000;
+            align-items: center;
+            justify-content: center;
+            backdrop-filter: blur(4px);
+        }
+
+        .admin-overlay.open {
+            display: flex;
+        }
+
+        .admin-modal {
+            background: var(--bg-card);
+            border: 1px solid var(--border-color);
+            border-radius: 18px;
+            padding: 32px 28px;
+            width: min(400px, 90vw);
+            animation: fadeInUp 0.3s ease;
+        }
+
+        .admin-modal-title {
+            font-size: 1.1rem;
+            font-weight: 700;
+            color: var(--text-primary);
+            margin-bottom: 20px;
+            text-align: center;
+        }
+
+        .admin-pwd-input {
+            width: 100%;
+            padding: 13px 16px;
+            background: var(--bg-secondary);
+            border: 1px solid var(--border-color);
+            border-radius: 10px;
+            color: var(--text-primary);
+            font-size: 1rem;
+            margin-bottom: 8px;
+            outline: none;
+            transition: border-color 0.25s ease;
+        }
+
+        .admin-pwd-input:focus {
+            border-color: var(--accent-purple);
+        }
+
+        .admin-pwd-error {
+            font-size: 0.82rem;
+            color: #EF4444;
+            margin-bottom: 14px;
+            display: none;
+        }
+
+        .admin-modal-row {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 0;
+        }
+
+        .btn-admin-cancel {
+            flex: 1;
+            padding: 12px;
+            background: var(--bg-secondary);
+            border: 1px solid var(--border-color);
+            border-radius: 10px;
+            color: var(--text-secondary);
+            font-size: 0.95rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.25s ease;
+        }
+
+        .btn-admin-cancel:hover {
+            border-color: var(--accent-purple);
+            color: var(--text-primary);
+        }
+
+        .btn-admin-submit {
+            flex: 1;
+            padding: 12px;
+            background: linear-gradient(135deg, var(--accent-purple), var(--accent-pink));
+            border: none;
+            border-radius: 10px;
+            color: white;
+            font-size: 0.95rem;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.25s ease;
+        }
+
+        .btn-admin-submit:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 16px rgba(139, 92, 246, 0.4);
+        }
+
+        .admin-actions-hidden {
+            display: none;
+            flex-direction: column;
+            gap: 10px;
+            margin-top: 16px;
+        }
+
+        .admin-actions-hidden.visible {
+            display: flex;
+        }
+
+        /* ===== RESPONSIVIDADE E MOBILE ===== */
+
+        /* Garantir tamanho mínimo de fonte nos inputs para evitar zoom automático no iOS */
+        input, select, textarea {
+            font-size: 16px !important;
+        }
+
+        /* Toque mais responsivo em todos os botões */
+        button, .rating-btn, .radio-card, .nav-btn {
+            touch-action: manipulation;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        /* Safe area para iPhone com notch / Dynamic Island */
+        .container {
+            padding-left: max(20px, env(safe-area-inset-left));
+            padding-right: max(20px, env(safe-area-inset-right));
+        }
+
+        body {
+            padding-bottom: env(safe-area-inset-bottom);
+        }
+
+        @media (max-width: 600px) {
+            .app-title { font-size: 2.2rem; }
+            .question-card { padding: 24px 20px; }
+            .question-text { font-size: 1.1rem; }
+            .rating-btn { font-size: 1rem; border-radius: 10px; min-height: 44px; }
+            .pomp-number { font-size: 3.5rem; }
+            .results-title { font-size: 1.6rem; }
+            .card { padding: 22px 20px; }
+            .thermo-layout { gap: 18px; }
+            .thermo-tube { width: 18px; height: 150px; }
+            .thermo-bulb { width: 30px; height: 30px; }
+            .thermo-scale-labels { height: 178px; }
+            /* Radio cards: 2 colunas em ecrãs pequenos */
+            .radio-grid { grid-template-columns: repeat(2, 1fr); }
+            .radio-grid-3 { grid-template-columns: repeat(2, 1fr); }
+            /* Botões de ação maiores para toque */
+            .btn-primary, .btn-secondary, .btn-export, .btn-clear, .btn-restart {
+                min-height: 48px;
+                font-size: 1rem;
+            }
+            /* Admin modal mais estreito no mobile */
+            .admin-modal { padding: 28px 20px; max-width: 95vw; }
+        }
+
+        @media (max-width: 480px) {
+            /* Termômetro em coluna nos ecrãs muito estreitos */
+            .thermo-layout { flex-direction: column; align-items: center; }
+            .thermo-scale-labels { flex-direction: row; height: auto; width: 100%; justify-content: space-between; writing-mode: horizontal-tb; }
+            /* Progress steps menores */
+            .step-dot { width: 28px; height: 28px; font-size: 0.75rem; }
+            .step-label { font-size: 0.6rem; }
+            .step-line { width: 24px; }
+        }
+
+        @media (max-width: 380px) {
+            .rating-grid { gap: 6px; }
+            .rating-btn { font-size: 0.9rem; border-radius: 8px; }
+            .radio-grid, .radio-grid-3 { grid-template-columns: 1fr 1fr; gap: 8px; }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Partículas de fundo -->
+    <div id="particles"></div>
+
+    <!-- Confetti -->
+    <div id="confetti"></div>
+
+    <!-- Barra arco-íris -->
+    <div class="rainbow-bar"></div>
+
+    <div class="container">
+
+        <!-- ==============================
+             TELA 1: BOAS-VINDAS
+        ============================== -->
+        <div class="screen active" id="screen-welcome">
+
+            <div class="welcome-hero">
+                <span class="app-emoji">🏳️‍🌈</span>
+                <h1 class="app-title">Pride+</h1>
+                <p class="app-subtitle">Termômetro do Orgulho LGBTQIA+</p>
+                <p class="app-version">VERSÃO 1.0.0</p>
+            </div>
+
+            <div class="card">
+                <p class="card-label">Sobre o Pride+</p>
+                <p>
+                    O <strong>Pride+</strong> é um termômetro do orgulho LGBTQIA+. Ele mede,
+                    em percentagem, o quanto situações do dia a dia da comunidade fazem você
+                    sentir orgulho de ser LGBTQIA+.
+                </p>
+                <p>
+                    Fundamentado em evidências científicas, o Pride+ mostra o seu resultado
+                    numa escala de 0% a 100%, tornando fácil e imediato compreender em que nível
+                    o seu orgulho se encontra neste momento.
+                </p>
+            </div>
+
+            <div class="note-box">
+                <p>
+                    🔒 <strong>Privacidade e Ética:</strong> Este instrumento destina-se a fins de
+                    investigação científica e autoconhecimento. Não constitui um meio para diagnóstico
+                    psicológico. Os seus dados são recolhidos de forma anónima e armazenados em segurança
+                    exclusivamente neste dispositivo, não sendo partilhados com terceiros nem permitindo
+                    a sua identificação pessoal.
+                </p>
+            </div>
+
+            <button class="btn-primary" onclick="startAssessment()">
+                Medir o Meu Orgulho
+            </button>
+
+            <p class="consent-text">
+                Ao clicar em "Medir o Meu Orgulho", você declara ter lido as informações acima
+                e concorda voluntariamente em participar nesta investigação científica, incluindo
+                o armazenamento anónimo das suas respostas neste dispositivo.
+            </p>
+
+            <div class="footer">
+                <strong>Pride+</strong> v1.0.0<br>
+                Desenvolvido por Allysson Dantas, PhD<br>
+                Baseado na Escala de Orgulho LGBTQIA+
+            </div>
+
+        </div>
+
+        <!-- ==============================
+             TELA 2: SOCIODEMOGRÁFICO
+        ============================== -->
+        <div class="screen" id="screen-socio">
+
+            <div class="step-indicator">
+                <div class="step done">1</div>
+                <div class="step-line"></div>
+                <div class="step active">2</div>
+                <div class="step-line"></div>
+                <div class="step">3</div>
+                <div class="step-line"></div>
+                <div class="step">4</div>
+            </div>
+            <p class="step-label">Dados sociodemográficos</p>
+
+            <!-- Idade -->
+            <div class="card socio-card">
+                <p class="card-label">Idade</p>
+                <div class="slider-row">
+                    <span class="slider-min">18</span>
+                    <input type="range" id="age-slider" min="18" max="99" value="25"
+                           oninput="updateAge(this.value)" class="age-slider">
+                    <span class="slider-max">99</span>
+                </div>
+                <div class="age-display">
+                    <span id="age-value">25</span>
+                    <span class="age-unit">anos</span>
+                </div>
+            </div>
+
+            <!-- Género -->
+            <div class="card socio-card">
+                <p class="card-label">Género</p>
+                <div class="radio-grid" id="gender-grid">
+                    <button class="radio-card" data-group="gender" data-val="Homem"
+                            onclick="selectRadio('gender','Homem',this)">Homem</button>
+                    <button class="radio-card" data-group="gender" data-val="Mulher"
+                            onclick="selectRadio('gender','Mulher',this)">Mulher</button>
+                    <button class="radio-card" data-group="gender" data-val="Não-binário"
+                            onclick="selectRadio('gender','Não-binário',this)">Não-binário</button>
+                </div>
+            </div>
+
+            <!-- Escolaridade -->
+            <div class="card socio-card">
+                <p class="card-label">Escolaridade</p>
+                <div class="radio-grid radio-grid-3" id="edu-grid">
+                    <button class="radio-card" data-group="edu" data-val="Ensino Fundamental"
+                            onclick="selectRadio('edu','Ensino Fundamental',this)">Ensino Fundamental</button>
+                    <button class="radio-card" data-group="edu" data-val="Ensino Médio"
+                            onclick="selectRadio('edu','Ensino Médio',this)">Ensino Médio</button>
+                    <button class="radio-card" data-group="edu" data-val="Graduação"
+                            onclick="selectRadio('edu','Graduação',this)">Graduação</button>
+                    <button class="radio-card" data-group="edu" data-val="Especialização"
+                            onclick="selectRadio('edu','Especialização',this)">Especialização</button>
+                    <button class="radio-card" data-group="edu" data-val="Mestrado"
+                            onclick="selectRadio('edu','Mestrado',this)">Mestrado</button>
+                    <button class="radio-card" data-group="edu" data-val="Doutorado"
+                            onclick="selectRadio('edu','Doutorado',this)">Doutorado</button>
+                </div>
+            </div>
+
+            <p class="socio-error" id="socio-error">Por favor, preencha todos os campos antes de continuar.</p>
+
+            <button class="btn-primary" onclick="goToInstructions()">Continuar →</button>
+
+        </div>
+
+        <!-- ==============================
+             TELA 3: INSTRUÇÕES
+        ============================== -->
+        <div class="screen" id="screen-instructions">
+
+            <div class="step-indicator">
+                <div class="step done">1</div>
+                <div class="step-line"></div>
+                <div class="step done">2</div>
+                <div class="step-line"></div>
+                <div class="step active">3</div>
+                <div class="step-line"></div>
+                <div class="step">4</div>
+            </div>
+            <p class="step-label">Como responder</p>
+
+            <div class="card">
+                <p class="card-label">Instruções</p>
+                <p>
+                    A seguir, você encontrará <strong>16 afirmações</strong>. Para cada uma delas,
+                    complete a frase de início:
+                </p>
+                <div class="instruction-phrase">
+                    "Sinto orgulho de ser uma pessoa LGBTQIA+…"
+                </div>
+                <p>Indique em que medida concorda com cada afirmação utilizando a escala:</p>
+                <div class="scale-demo">
+                    <span class="scale-demo-label">1 = Discordo muito</span>
+                    <span class="scale-demo-label" style="text-align:center; color: var(--border-color);">·····</span>
+                    <span class="scale-demo-label">6 = Concordo muito</span>
+                </div>
+            </div>
+
+            <div class="note-box" style="margin-bottom:18px;">
+                <p>Não há respostas certas ou erradas. Responda com base no que realmente sente.</p>
+            </div>
+
+            <button class="btn-primary" onclick="beginItems()">Iniciar Medição</button>
+
+        </div>
+
+        <!-- ==============================
+             TELA 4: QUESTÕES
+        ============================== -->
+        <div class="screen" id="screen-questions">
+
+            <div class="step-indicator" style="margin-bottom:8px;">
+                <div class="step done">1</div>
+                <div class="step-line"></div>
+                <div class="step done">2</div>
+                <div class="step-line"></div>
+                <div class="step done">3</div>
+                <div class="step-line"></div>
+                <div class="step active">4</div>
+            </div>
+
+            <div class="progress-wrapper">
+                <div class="progress-meta">
+                    <span class="progress-meta-text">
+                        Questão <span id="q-num">1</span> de 12
+                    </span>
+                    <span class="progress-pct" id="q-pct">8%</span>
+                </div>
+                <div class="progress-track">
+                    <div class="progress-fill" id="q-bar" style="width: 8%;"></div>
+                </div>
+            </div>
+
+            <div class="question-card" id="q-card">
+                <div class="question-badge">
+                    <span>Item</span>
+                    <span id="q-item-num">23</span>
+                </div>
+                <p class="question-intro">
+                    Sinto orgulho de ser uma pessoa LGBTQIA+<span class="question-emphasis">…</span>
+                </p>
+                <p class="question-text" id="q-text">Carregando...</p>
+
+                <div class="rating-wrapper">
+                    <div class="rating-endpoints">
+                        <span class="rating-endpoint">Discordo muito</span>
+                        <span class="rating-endpoint">Concordo muito</span>
+                    </div>
+                    <div class="rating-grid" id="rating-grid">
+                        <button class="rating-btn" data-val="1" onclick="selectRating(1)">1</button>
+                        <button class="rating-btn" data-val="2" onclick="selectRating(2)">2</button>
+                        <button class="rating-btn" data-val="3" onclick="selectRating(3)">3</button>
+                        <button class="rating-btn" data-val="4" onclick="selectRating(4)">4</button>
+                        <button class="rating-btn" data-val="5" onclick="selectRating(5)">5</button>
+                        <button class="rating-btn" data-val="6" onclick="selectRating(6)">6</button>
+                    </div>
+                </div>
+            </div>
+
+            <div class="nav-row">
+                <button class="btn-nav btn-back" id="btn-back" onclick="prevQ()">← Anterior</button>
+                <button class="btn-nav btn-next" id="btn-next" onclick="nextQ()" disabled>Próxima →</button>
+            </div>
+
+        </div>
+
+        <!-- ==============================
+             TELA 3: RESULTADOS
+        ============================== -->
+        <div class="screen" id="screen-results">
+
+            <div class="results-hero">
+                <span class="results-icon-big" id="res-icon">🏳️‍🌈</span>
+                <h2 class="results-title" id="res-title">Resultados</h2>
+                <p class="results-sub" id="res-sub">Avaliação concluída</p>
+            </div>
+
+            <div class="score-card">
+                <div class="thermo-layout">
+
+                    <!-- Termômetro vertical -->
+                    <div class="thermo-wrap">
+                        <div class="thermo-scale-labels">
+                            <span>100%</span>
+                            <span>75%</span>
+                            <span>50%</span>
+                            <span>25%</span>
+                            <span>0%</span>
+                        </div>
+                        <div class="thermo-body">
+                            <div class="thermo-tube">
+                                <div class="thermo-mercury" id="thermo-mercury" style="height:0%;"></div>
+                            </div>
+                            <div class="thermo-bulb" id="thermo-bulb"></div>
+                        </div>
+                    </div>
+
+                    <!-- Números e nível -->
+                    <div class="thermo-info">
+                        <p class="score-label">Termômetro do Orgulho</p>
+                        <div class="pomp-number" id="res-pomp">0</div>
+                        <div class="pomp-unit">% de orgulho</div>
+                        <div class="level-pill" id="res-pill">—</div>
+                        <p class="percentile-note" id="percentile-note"></p>
+                    </div>
+
+                </div>
+            </div>
+
+            <div class="interp-card">
+                <p class="interp-card-label">Interpretação</p>
+                <p class="interp-text" id="res-interp"></p>
+            </div>
+
+            <div class="interp-card">
+                <p class="interp-card-label">Suas respostas por item</p>
+                <div class="items-list" id="res-items"></div>
+            </div>
+
+            <div class="results-actions">
+                <button class="btn-restart" onclick="restartApp()">
+                    Medir Novamente &nbsp;🔄
+                </button>
+            </div>
+
+            <!-- Acesso admin discreto -->
+            <div class="admin-access-row">
+                <button class="btn-admin-lock" onclick="openAdminModal()" title="Acesso restrito">🔒</button>
+            </div>
+
+            <div class="footer">
+                <strong>Pride+</strong> v1.0.0 &nbsp;|&nbsp;
+                Allysson Dantas, PhD<br>
+                Baseado na Escala de Orgulho LGBTQIA+
+            </div>
+
+        </div>
+
+    </div><!-- /container -->
+
+    <!-- ==============================
+         MODAL ADMIN (acesso restrito)
+    ============================== -->
+    <div class="admin-overlay" id="admin-overlay" onclick="overlayClick(event)">
+        <div class="admin-modal" id="admin-modal">
+            <p class="admin-modal-title">🔒 Acesso Restrito</p>
+            <input type="password" id="admin-pwd-input"
+                   class="admin-pwd-input"
+                   placeholder="Senha"
+                   onkeydown="if(event.key==='Enter') checkAdminPwd()">
+            <p class="admin-pwd-error" id="admin-pwd-error">Senha incorreta.</p>
+            <div class="admin-modal-row">
+                <button class="btn-admin-cancel" onclick="closeAdminModal()">Cancelar</button>
+                <button class="btn-admin-submit" onclick="checkAdminPwd()">Entrar</button>
+            </div>
+            <div id="admin-actions" class="admin-actions-hidden">
+                <button class="btn-export" onclick="exportCSV()">
+                    Exportar todos os dados (.csv) &nbsp;📊
+                </button>
+                <button class="btn-export" onclick="exportSAV()" style="margin-top:10px;">
+                    Exportar todos os dados (.sav / SPSS) &nbsp;📋
+                </button>
+                <button class="btn-clear" onclick="clearData()">
+                    Apagar dados guardados &nbsp;🗑️
+                </button>
+            </div>
+        </div>
+    </div>
+
+
+    <script>
+    /* ============================================================
+       Pride+ — Lógica Principal
+       Versão 1.0.0
+       Autor: Allysson Dantas, PhD
+    ============================================================ */
+
+    'use strict';
+
+    // ----------------------------------------------------------
+    // DADOS DA ESCALA
+    // ----------------------------------------------------------
+    const ITEMS = [
+        {
+            num: 1,
+            text: "…quando um(a) amigo(a) próximo(a) tem coragem de se assumir à família como LGBTQIA+."
+        },
+        {
+            num: 2,
+            text: "…quando vejo mais pessoas a sair do armário."
+        },
+        {
+            num: 3,
+            text: "…quando percebo pessoas LGBTQIA+ a apropriarem-se cada vez mais da história política do movimento LGBTQIA+."
+        },
+        {
+            num: 4,
+            text: "…quando percebo que outras pessoas LGBTQIA+ se têm unido em prol da defesa dos direitos da comunidade LGBTQIA+."
+        },
+        {
+            num: 5,
+            text: "…quando vejo casos de casamento civil entre pessoas LGBTQIA+."
+        },
+        {
+            num: 6,
+            text: "…por saber que muitas pessoas LGBTQIA+ têm vindo a conquistar espaços importantes na sociedade (por exemplo, na política)."
+        },
+        {
+            num: 7,
+            text: "…quando vejo casais LGBTQIA+ a manifestar o seu amor em público (por exemplo, andar de mãos dadas)."
+        },
+        {
+            num: 8,
+            text: "…quando tomo conhecimento de casos de adoção por famílias LGBTQIA+."
+        },
+        {
+            num: 9,
+            text: "…quando vejo pessoas LGBTQIA+ a lutar contra a LGBTfobia ou contra outros tipos de preconceito e discriminação (por exemplo, o machismo e o racismo)."
+        },
+        {
+            num: 10,
+            text: "…quando vejo pessoas LGBTQIA+ a contestar pessoas ou instituições que defendem abertamente posições conservadoras nas práticas sociais."
+        },
+        {
+            num: 11,
+            text: "…quando vejo pessoas LGBTQIA+ a lutar pelos seus direitos civis (por exemplo, o direito a dar sangue)."
+        },
+        {
+            num: 12,
+            text: "…quando vejo outras pessoas LGBTQIA+ a enfrentar o preconceito e a discriminação na sociedade."
+        },
+        {
+            num: 13,
+            text: "…ao ponto de abdicar de quem amo para defender a causa LGBTQIA+."
+        },
+        {
+            num: 14,
+            text: "…ao ponto de recusar o emprego dos meus sonhos para defender a minha identidade LGBTQIA+."
+        },
+        {
+            num: 15,
+            text: "…ao ponto de arriscar a minha vida num protesto violento para defender as pessoas LGBTQIA+."
+        },
+        {
+            num: 16,
+            text: "…ao ponto de abdicar do amor da minha família."
+        }
+    ];
+
+    // ----------------------------------------------------------
+    // INTERPRETAÇÕES
+    // ----------------------------------------------------------
+    const LEVELS = {
+        low: {
+            label: "Orgulho em Desenvolvimento",
+            pillClass: "lvl-low",
+            icon: "🌱",
+            title: "Orgulho em Desenvolvimento",
+            text: `Sua pontuação sugere que você pode estar em um processo inicial de
+construção ou de reconexão com o orgulho LGBTQIA+. Isso é completamente válido
+e compreensível, dado que o orgulho coletivo é construído ao longo do tempo e a
+partir de diferentes contextos e experiências. O acesso a espaços seguros, a
+conexão com redes de apoio e o envolvimento com a comunidade são caminhos que
+podem fortalecer esse sentido de pertença e de identificação coletiva.`
+        },
+        moderate: {
+            label: "Orgulho Moderado",
+            pillClass: "lvl-moderate",
+            icon: "🌤️",
+            title: "Orgulho em Crescimento",
+            text: `Sua pontuação indica um nível moderado de orgulho LGBTQIA+. Você reconhece e
+valoriza conquistas e lutas da comunidade, ainda que determinadas situações
+evoquem esse sentimento com maior intensidade do que outras. Esse é um espaço
+de crescimento e de descoberta contínua da sua conexão com a identidade
+LGBTQIA+ e com o movimento mais amplo de defesa dos direitos humanos.`
+        },
+        high: {
+            label: "Orgulho Alto",
+            pillClass: "lvl-high",
+            icon: "🌈",
+            title: "Orgulho Consolidado",
+            text: `Sua pontuação reflete um nível alto de orgulho LGBTQIA+. Você demonstra forte
+identificação com a comunidade e com as suas lutas, experimentando orgulho diante
+das conquistas coletivas, da visibilidade e da resistência LGBTQIA+. Esse orgulho
+consolidado constitui um recurso psicológico relevante, associado ao bem-estar,
+à resiliência e ao engajamento na defesa dos direitos da comunidade.`
+        },
+        very_high: {
+            label: "Orgulho Muito Alto",
+            pillClass: "lvl-very-high",
+            icon: "✨🏳️‍🌈✨",
+            title: "Orgulho Pleno",
+            text: `Sua pontuação evidencia um nível muito alto de orgulho LGBTQIA+. Você vivencia
+um profundo sentido de pertença e de identificação com a comunidade, celebrando
+as suas conquistas, a sua diversidade e a sua resistência. Este nível de orgulho
+está associado a maior bem-estar psicológico, a maior resiliência frente ao
+preconceito e ao engajamento ativo em prol dos direitos LGBTQIA+.`
+        }
+    };
+
+    // POMP = Percent of Maximum Possible
+    // 16 itens × escala 1-6: min = 16, max = 96, range = 80
+    function calcPOMP(rawScore) {
+        return Math.round(((rawScore - 16) / 80) * 100);
+    }
+
+    // POMP por item individual (escala 1-6: min=1, max=6, range=5)
+    function calcItemPOMP(val) {
+        return Math.round(((val - 1) / 5) * 100);
+    }
+
+    // Calcula P25/P50/P75 a partir dos dados acumulados.
+    // Com menos de 4 respostas usa quartis teóricos uniformes como fallback.
+    function getPercentileThresholds() {
+        const sessions = loadSessions();
+        if (sessions.length < 4) {
+            return { p25: 25, p50: 50, p75: 75 };
+        }
+        const pomps = sessions.map(s => Number(s.pomp)).sort((a, b) => a - b);
+        const n = pomps.length;
+        const at = frac => pomps[Math.min(Math.floor(n * frac), n - 1)];
+        return { p25: at(0.25), p50: at(0.50), p75: at(0.75) };
+    }
+
+    function getLevel(pomp) {
+        const { p25, p50, p75 } = getPercentileThresholds();
+        if (pomp <= p25) return LEVELS.low;
+        if (pomp <= p50) return LEVELS.moderate;
+        if (pomp <= p75) return LEVELS.high;
+        return LEVELS.very_high;
+    }
+
+    // ----------------------------------------------------------
+    // CORES POR VALOR DE RESPOSTA (arco-íris)
+    // ----------------------------------------------------------
+    const RATING_COLORS = {
+        1: '#FF3344',
+        2: '#FFA52C',
+        3: '#DDBB00',
+        4: '#009922',
+        5: '#0055EE',
+        6: '#9933CC'
+    };
+
+    // ----------------------------------------------------------
+    // PERSISTÊNCIA (localStorage)
+    // ----------------------------------------------------------
+    const STORAGE_KEY = 'prideplus_sessions';
+
+    function loadSessions() {
+        try {
+            return JSON.parse(localStorage.getItem(STORAGE_KEY) || '[]');
+        } catch(e) { return []; }
+    }
+
+    function saveSession(sessionObj) {
+        const sessions = loadSessions();
+        sessions.push(sessionObj);
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(sessions));
+    }
+
+    // ----------------------------------------------------------
+    // ALEATORIZAÇÃO (Fisher-Yates)
+    // ----------------------------------------------------------
+    function shuffle(arr) {
+        const a = [...arr];
+        for (let i = a.length - 1; i > 0; i--) {
+            const j = Math.floor(Math.random() * (i + 1));
+            [a[i], a[j]] = [a[j], a[i]];
+        }
+        return a;
+    }
+
+    // ----------------------------------------------------------
+    // ESTADO
+    // ----------------------------------------------------------
+    let currentIdx   = 0;
+    let answers      = new Array(ITEMS.length).fill(null);
+    let autoTimer    = null;
+    let presentOrder = [];  // índices de ITEMS na ordem sorteada
+
+    // Dados sociodemográficos da sessão atual
+    let socioData = { idade: 25, genero: null, escolaridade: null };
+
+    // ----------------------------------------------------------
+    // NAVEGAÇÃO DE TELAS
+    // ----------------------------------------------------------
+    function showScreen(id) {
+        document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+        const target = document.getElementById(id);
+        target.classList.add('active');
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+
+    // ----------------------------------------------------------
+    // INÍCIO
+    // ----------------------------------------------------------
+    // Passo 1 → 2: abre sociodemográfico
+    function startAssessment() {
+        socioData = { idade: 25, genero: null, escolaridade: null };
+        document.getElementById('age-slider').value = 25;
+        document.getElementById('age-value').textContent = 25;
+        document.querySelectorAll('.radio-card').forEach(b => b.classList.remove('selected'));
+        document.getElementById('socio-error').style.display = 'none';
+        showScreen('screen-socio');
+    }
+
+    // Atualizar display da idade
+    function updateAge(val) {
+        socioData.idade = Number(val);
+        document.getElementById('age-value').textContent = val;
+    }
+
+    // Selecionar radio card
+    function selectRadio(group, val, el) {
+        document.querySelectorAll(`.radio-card[data-group="${group}"]`)
+            .forEach(b => b.classList.remove('selected'));
+        el.classList.add('selected');
+        if (group === 'gender') socioData.genero = val;
+        if (group === 'edu')    socioData.escolaridade = val;
+    }
+
+    // Passo 2 → 3: validar socio e mostrar instruções
+    function goToInstructions() {
+        const errEl = document.getElementById('socio-error');
+        if (!socioData.genero || !socioData.escolaridade) {
+            errEl.style.display = 'block';
+            return;
+        }
+        errEl.style.display = 'none';
+        showScreen('screen-instructions');
+    }
+
+    // Passo 3 → 4: embaralhar itens e iniciar medição
+    function beginItems() {
+        currentIdx   = 0;
+        answers      = new Array(ITEMS.length).fill(null);
+        presentOrder = shuffle(ITEMS.map((_, i) => i));
+        showScreen('screen-questions');
+        renderQuestion();
+    }
+
+    // ----------------------------------------------------------
+    // RENDERIZAR QUESTÃO ATUAL
+    // ----------------------------------------------------------
+    function renderQuestion() {
+        const origIdx = presentOrder[currentIdx]; // índice original no array ITEMS
+        const item    = ITEMS[origIdx];
+        const total   = ITEMS.length;
+        const pct     = Math.round(((currentIdx + 1) / total) * 100);
+
+        // Conteúdo
+        document.getElementById('q-num').textContent      = currentIdx + 1;
+        document.getElementById('q-item-num').textContent = currentIdx + 1;
+        document.getElementById('q-text').textContent     = item.text;
+        document.getElementById('q-pct').textContent      = pct + '%';
+        document.getElementById('q-bar').style.width      = pct + '%';
+
+        // Botões de resposta
+        document.querySelectorAll('.rating-btn').forEach(btn => {
+            btn.classList.remove('selected');
+        });
+
+        const prev = answers[origIdx];
+        if (prev !== null) {
+            const sel = document.querySelector(`.rating-btn[data-val="${prev}"]`);
+            if (sel) sel.classList.add('selected');
+            document.getElementById('btn-next').disabled = false;
+        } else {
+            document.getElementById('btn-next').disabled = true;
+        }
+
+        // Botão voltar
+        document.getElementById('btn-back').style.visibility =
+            currentIdx === 0 ? 'hidden' : 'visible';
+
+        // Texto do próximo
+        document.getElementById('btn-next').textContent =
+            currentIdx === total - 1 ? 'Ver Resultados 🌈' : 'Próxima →';
+
+        // Animar card
+        const card = document.getElementById('q-card');
+        card.style.animation = 'none';
+        card.offsetHeight;
+        card.style.animation = 'slideInRight 0.4s ease';
+    }
+
+    // ----------------------------------------------------------
+    // SELECIONAR AVALIAÇÃO
+    // ----------------------------------------------------------
+    function selectRating(val) {
+        if (autoTimer) { clearTimeout(autoTimer); autoTimer = null; }
+
+        const origIdx = presentOrder[currentIdx];
+        answers[origIdx] = val;
+
+        document.querySelectorAll('.rating-btn').forEach(btn => btn.classList.remove('selected'));
+        const sel = document.querySelector(`.rating-btn[data-val="${val}"]`);
+        if (sel) sel.classList.add('selected');
+
+        document.getElementById('btn-next').disabled = false;
+
+        // Avanço automático (exceto última questão)
+        if (currentIdx < ITEMS.length - 1) {
+            autoTimer = setTimeout(() => {
+                if (answers[origIdx] !== null) nextQ();
+            }, 700);
+        }
+    }
+
+    // ----------------------------------------------------------
+    // NAVEGAÇÃO ENTRE QUESTÕES
+    // ----------------------------------------------------------
+    function nextQ() {
+        if (autoTimer) { clearTimeout(autoTimer); autoTimer = null; }
+        const origIdx = presentOrder[currentIdx];
+        if (answers[origIdx] === null) return;
+
+        if (currentIdx < ITEMS.length - 1) {
+            currentIdx++;
+            renderQuestion();
+        } else {
+            showResults();
+        }
+    }
+
+    function prevQ() {
+        if (autoTimer) { clearTimeout(autoTimer); autoTimer = null; }
+        if (currentIdx > 0) {
+            currentIdx--;
+            renderQuestion();
+        }
+    }
+
+    // ----------------------------------------------------------
+    // RESULTADOS
+    // ----------------------------------------------------------
+    let lastRawScore = 0;
+    let lastPOMP     = 0;
+
+    function showResults() {
+        const rawScore = answers.reduce((acc, v) => acc + (v || 0), 0);
+        const pomp     = calcPOMP(rawScore);
+        const level    = getLevel(pomp);
+
+        lastRawScore = rawScore;
+        lastPOMP     = pomp;
+
+        // Salvar sessão no localStorage (inclui sociodemográfico)
+        saveSession({
+            id:           Date.now(),
+            timestamp:    new Date().toISOString(),
+            idade:        socioData.idade,
+            genero:       socioData.genero,
+            escolaridade: socioData.escolaridade,
+            answers:      [...answers],   // ordem original (Item 1…16)
+            rawScore,
+            pomp
+        });
+
+        showScreen('screen-results');
+
+        document.getElementById('res-icon').textContent  = level.icon;
+        document.getElementById('res-title').textContent = level.title;
+        document.getElementById('res-sub').textContent   = 'O seu termômetro está pronto!';
+
+        // Animar POMP
+        const pompEl = document.getElementById('res-pomp');
+        let pCnt = 0;
+        const pStep = Math.max(1, Math.floor(pomp / 50));
+        const t2 = setInterval(() => {
+            pCnt = Math.min(pCnt + pStep, pomp);
+            pompEl.textContent = pCnt;
+            if (pCnt >= pomp) { pompEl.textContent = pomp; clearInterval(t2); }
+        }, 28);
+
+        // Animar termômetro
+        setTimeout(() => {
+            document.getElementById('thermo-mercury').style.height = pomp + '%';
+            if (pomp >= 60) document.getElementById('thermo-bulb').classList.add('hot');
+        }, 200);
+
+        // Pill de nível + referência percentil
+        const { p25, p50, p75 } = getPercentileThresholds();
+        const pill = document.getElementById('res-pill');
+        pill.textContent = level.label;
+        pill.className   = 'level-pill ' + level.pillClass;
+
+        // Mostrar os limiares percentis usados como nota discreta
+        const pnote = document.getElementById('percentile-note');
+        if (pnote) {
+            pnote.textContent = `Limiares (P25=${p25}% | P50=${p50}% | P75=${p75}%)`;
+        }
+
+        // Texto de interpretação
+        document.getElementById('res-interp').textContent = level.text;
+
+        // Itens individuais — ordenados de 1 a 16, com texto completo e % POMP
+        const container = document.getElementById('res-items');
+        container.innerHTML = '';
+
+        ITEMS.forEach((item, idx) => {
+            const val   = answers[idx] || 0;
+            const pompI = calcItemPOMP(val);
+            const color = RATING_COLORS[val] || '#8B5CF6';
+
+            const row = document.createElement('div');
+            row.className = 'item-row-full';
+            row.innerHTML = `
+                <div class="item-header-row">
+                    <span class="item-lbl-sm">Item ${item.num}</span>
+                    <span class="item-pct-val" style="color:${color};">${pompI}%</span>
+                </div>
+                <p class="item-text-full">"Sinto orgulho de ser uma pessoa LGBTQIA+ ${item.text}"</p>
+                <div class="item-track">
+                    <div class="item-fill" style="width: 0%; background: ${color};"></div>
+                </div>
+            `;
+            container.appendChild(row);
+        });
+
+        // Animar barras
+        setTimeout(() => {
+            const fills = container.querySelectorAll('.item-fill');
+            ITEMS.forEach((item, idx) => {
+                const pompI = calcItemPOMP(answers[idx] || 0);
+                if (fills[idx]) fills[idx].style.width = pompI + '%';
+            });
+        }, 300);
+
+        // Confetti para POMP alto
+        if (pomp >= 68) setTimeout(launchConfetti, 600);
+    }
+
+    // ----------------------------------------------------------
+    // EXPORTAÇÃO CSV — todas as sessões registradas
+    // ----------------------------------------------------------
+    function exportCSV() {
+        const sessions = loadSessions();
+
+        if (sessions.length === 0) {
+            alert('Nenhum dado registrado ainda.');
+            return;
+        }
+
+        // Cabeçalho (inclui sociodemográfico)
+        const itemHeaders = ITEMS.map(it => `Item_${it.num}`).join(',');
+        const header = `ID,Data_Hora,Idade,Genero,Escolaridade,${itemHeaders},Score_Bruto,POMP`;
+
+        // Linhas
+        const rows = sessions.map((s, i) => {
+            const ts   = s.timestamp ? s.timestamp.replace('T', ' ').slice(0, 19) : '';
+            const vals = ITEMS.map((_, idx) => {
+                const v = s.answers && s.answers[idx] != null ? s.answers[idx] : '';
+                return v;
+            }).join(',');
+            const idade  = s.idade        != null ? s.idade        : '';
+            const genero = s.genero       ? `"${s.genero}"`        : '';
+            const escol  = s.escolaridade ? `"${s.escolaridade}"`  : '';
+            return `${i + 1},"${ts}",${idade},${genero},${escol},${vals},${s.rawScore},${s.pomp}`;
+        });
+
+        const csv  = '﻿' + header + '\n' + rows.join('\n'); // BOM UTF-8
+
+        const now   = new Date();
+        const stamp = `${now.getFullYear()}-${String(now.getMonth()+1).padStart(2,'0')}-${String(now.getDate()).padStart(2,'0')}`;
+        const blob  = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+        const url   = URL.createObjectURL(blob);
+        const a     = document.createElement('a');
+        a.href      = url;
+        a.download  = `PridePlus_Dados_${stamp}.csv`;
+        a.click();
+        URL.revokeObjectURL(url);
+    }
+
+    // ----------------------------------------------------------
+    // EXPORTAÇÃO SPSS (.sav) — formato binário uncompressed
+    // ----------------------------------------------------------
+    function generateSAV(sessions) {
+        const SYSMIS = -1.7976931348623157e+308;
+        const parts  = [];
+
+        function pushU8(arr) { parts.push(new Uint8Array(arr)); }
+
+        function fixedStr(s, len) {
+            const out  = new Uint8Array(len).fill(0x20);
+            const safe = String(s).replace(/[^\x20-\x7E]/g, '?');
+            for (let i = 0; i < Math.min(safe.length, len); i++) out[i] = safe.charCodeAt(i);
+            parts.push(out);
+        }
+
+        function int32(v) {
+            const b = new ArrayBuffer(4);
+            new DataView(b).setInt32(0, v | 0, true);
+            parts.push(new Uint8Array(b));
+        }
+
+        function float64(v) {
+            const b   = new ArrayBuffer(8);
+            const val = (v === null || v === undefined || (typeof v === 'number' && isNaN(v))) ? SYSMIS : +v;
+            new DataView(b).setFloat64(0, val, true);
+            parts.push(new Uint8Array(b));
+        }
+
+        // Formatos SPSS: (type<<16)|(width<<8)|decimals
+        const F8_0  = (5 << 16) | (8 << 8) | 0;
+        const F8_2  = (5 << 16) | (8 << 8) | 2;
+        const F3_0  = (5 << 16) | (3 << 8) | 0;
+
+        const GENDER_MAP = { 'Homem': 1, 'Mulher': 2, 'Não-binário': 3 };
+        const EDU_MAP    = {
+            'Ensino Fundamental': 1, 'Ensino Médio': 2, 'Graduação': 3,
+            'Especialização': 4, 'Mestrado': 5, 'Doutorado': 6
+        };
+
+        const vars = [
+            { name: 'ID',      fmt: F8_0, label: 'Identificador' },
+            { name: 'IDADE',   fmt: F3_0, label: 'Idade anos' },
+            { name: 'GENERO',  fmt: F8_0, label: 'Genero',
+              vl: [[1,'Homem'],[2,'Mulher'],[3,'Nao-binario']] },
+            { name: 'ESCOLAR', fmt: F8_0, label: 'Escolaridade',
+              vl: [[1,'Ens.Fund.'],[2,'Ens.Medio'],[3,'Graduacao'],
+                   [4,'Especial.'],[5,'Mestrado'],[6,'Doutorado']] },
+            ...ITEMS.map(it => ({ name: `ITEM${it.num}`, fmt: F3_0, label: `Item ${it.num}` })),
+            { name: 'SCORE',   fmt: F8_0, label: 'Score Bruto' },
+            { name: 'POMP',    fmt: F8_2, label: 'POMP Percentual' },
+        ];
+
+        // --- Cabeçalho do ficheiro (176 bytes) ---
+        const now  = new Date();
+        const MO   = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+        fixedStr('$FL2', 4);
+        fixedStr('@(#) SPSS DATA FILE Pride+ 1.0.0', 60);
+        int32(2);                      // layout code (little-endian)
+        int32(vars.length);            // número de variáveis
+        int32(0);                      // compressed: 0 = não comprimido
+        int32(0);                      // weight variable index: nenhuma
+        int32(sessions.length);        // número de casos
+        float64(100.0);                // bias (não usado em uncompressed)
+        fixedStr(String(now.getDate()).padStart(2,'0') + ' ' + MO[now.getMonth()] + ' ' + String(now.getFullYear()).slice(-2), 9);
+        fixedStr(String(now.getHours()).padStart(2,'0') + ':' + String(now.getMinutes()).padStart(2,'0') + ':' + String(now.getSeconds()).padStart(2,'0'), 8);
+        fixedStr('Pride+ - Escala de Orgulho LGBTQIA+', 64);
+        pushU8([0, 0, 0]);             // padding (3 bytes)
+
+        // --- Registos de variáveis (tipo 2) ---
+        const vidx = {}; let pos = 1;
+        for (const v of vars) {
+            vidx[v.name] = pos++;
+            const rawLbl  = String(v.label || '').replace(/[^\x20-\x7E]/g, '?');
+            const lblLen  = Math.min(rawLbl.length, 255);
+            const lblPad  = Math.ceil(lblLen / 4) * 4;
+            int32(2);           // rec_type = variável
+            int32(0);           // type: 0 = numérico
+            int32(lblLen ? 1 : 0); // has_var_label
+            int32(0);           // n_missing_values
+            int32(v.fmt);       // print_format
+            int32(v.fmt);       // write_format
+            fixedStr(v.name.padEnd(8, ' ').slice(0, 8), 8);
+            if (lblLen) {
+                int32(lblLen);
+                fixedStr(rawLbl.slice(0, lblLen).padEnd(lblPad, ' '), lblPad);
+            }
+        }
+
+        // --- Rótulos de valor (tipos 3 e 4) ---
+        for (const v of vars) {
+            if (!v.vl || !v.vl.length) continue;
+            int32(3);                  // rec_type = value_labels
+            int32(v.vl.length);
+            for (const [val, lbl] of v.vl) {
+                const safe     = String(lbl).replace(/[^\x20-\x7E]/g, '?');
+                const ll       = Math.min(safe.length, 60);
+                const entryPad = Math.ceil((1 + ll) / 8) * 8; // alinha a 8 bytes
+                float64(val);
+                pushU8([ll]);
+                fixedStr(safe.slice(0, ll).padEnd(entryPad - 1, ' '), entryPad - 1);
+            }
+            int32(4);                  // rec_type = value_label_variables
+            int32(1);
+            int32(vidx[v.name]);
+        }
+
+        // --- Informação de inteiros da máquina (rec_type=7, subtype=3) ---
+        int32(7); int32(3); int32(4); int32(8);
+        for (const iv of [14, 1, 0, 1, 1, 1, 1, 1252]) int32(iv);
+
+        // --- Informação de floats da máquina (rec_type=7, subtype=4) ---
+        int32(7); int32(4); int32(8); int32(3);
+        float64(SYSMIS);
+        float64(1.7976931348623157e+308);
+        float64(-1.7976931348623157e+308);
+
+        // --- Terminação do dicionário ---
+        int32(999); int32(0);
+
+        // --- Dados (um float64 por variável por caso) ---
+        for (let i = 0; i < sessions.length; i++) {
+            const s = sessions[i];
+            float64(i + 1);
+            float64(s.idade != null ? +s.idade : null);
+            float64(s.genero       ? (GENDER_MAP[s.genero]       ?? null) : null);
+            float64(s.escolaridade ? (EDU_MAP[s.escolaridade]    ?? null) : null);
+            for (let k = 0; k < ITEMS.length; k++) {
+                float64(s.answers && s.answers[k] != null ? s.answers[k] : null);
+            }
+            float64(s.rawScore != null ? s.rawScore : null);
+            float64(s.pomp     != null ? s.pomp     : null);
+        }
+
+        // Concatenar todas as partes
+        const total = parts.reduce((n, p) => n + p.length, 0);
+        const out   = new Uint8Array(total);
+        let   off   = 0;
+        for (const p of parts) { out.set(p, off); off += p.length; }
+        return out;
+    }
+
+    function exportSAV() {
+        const sessions = loadSessions();
+        if (sessions.length === 0) {
+            alert('Nenhum dado registrado ainda.');
+            return;
+        }
+        const data  = generateSAV(sessions);
+        const now   = new Date();
+        const stamp = `${now.getFullYear()}-${String(now.getMonth()+1).padStart(2,'0')}-${String(now.getDate()).padStart(2,'0')}`;
+        const blob  = new Blob([data], { type: 'application/octet-stream' });
+        const url   = URL.createObjectURL(blob);
+        const a     = document.createElement('a');
+        a.href      = url;
+        a.download  = `PridePlus_Dados_${stamp}.sav`;
+        a.click();
+        URL.revokeObjectURL(url);
+    }
+
+    // ----------------------------------------------------------
+    // LIMPAR DADOS REGISTRADOS
+    // ----------------------------------------------------------
+    function clearData() {
+        const n = loadSessions().length;
+        if (n === 0) { alert('Nenhum dado registrado.'); return; }
+        if (confirm(`Apagar permanentemente ${n} registo(s) guardado(s)? Esta ação não pode ser desfeita.`)) {
+            localStorage.removeItem(STORAGE_KEY);
+            closeAdminModal();
+            alert('Dados apagados com sucesso.');
+        }
+    }
+
+    // ----------------------------------------------------------
+    // MODAL ADMIN
+    // ----------------------------------------------------------
+    const _AP = 'Pride+Admin25';
+
+    function openAdminModal() {
+        const overlay = document.getElementById('admin-overlay');
+        overlay.classList.add('open');
+        document.getElementById('admin-pwd-input').value = '';
+        document.getElementById('admin-pwd-error').style.display = 'none';
+        document.getElementById('admin-actions').classList.remove('visible');
+        setTimeout(() => document.getElementById('admin-pwd-input').focus(), 100);
+    }
+
+    function closeAdminModal() {
+        document.getElementById('admin-overlay').classList.remove('open');
+    }
+
+    function overlayClick(e) {
+        if (e.target === document.getElementById('admin-overlay')) closeAdminModal();
+    }
+
+    function checkAdminPwd() {
+        const input = document.getElementById('admin-pwd-input').value;
+        const errEl = document.getElementById('admin-pwd-error');
+        if (input === _AP) {
+            errEl.style.display = 'none';
+            document.getElementById('admin-actions').classList.add('visible');
+            document.getElementById('admin-pwd-input').style.display = 'none';
+            document.querySelector('.admin-modal-row').style.display = 'none';
+        } else {
+            errEl.style.display = 'block';
+            document.getElementById('admin-pwd-input').value = '';
+            document.getElementById('admin-pwd-input').focus();
+        }
+    }
+
+    // ----------------------------------------------------------
+    // REINICIAR
+    // ----------------------------------------------------------
+    function restartApp() {
+        currentIdx = 0;
+        answers    = new Array(ITEMS.length).fill(null);
+        showScreen('screen-welcome');
+    }
+
+    // ----------------------------------------------------------
+    // CONFETTI
+    // ----------------------------------------------------------
+    function launchConfetti() {
+        const container = document.getElementById('confetti');
+        container.innerHTML = '';
+
+        const colors = [
+            '#FF0018', '#FFA52C', '#FFDD00',
+            '#009922', '#0055EE', '#86007D',
+            '#FF69B4', '#55CDFC', '#FFFFFF'
+        ];
+
+        for (let i = 0; i < 90; i++) {
+            const el    = document.createElement('div');
+            const size  = Math.random() * 9 + 5;
+            const isCirc = Math.random() > 0.4;
+
+            el.className = 'confetti-piece';
+            el.style.cssText = `
+                left: ${Math.random() * 100}%;
+                top: -20px;
+                width: ${size}px;
+                height: ${size}px;
+                background: ${colors[Math.floor(Math.random() * colors.length)]};
+                border-radius: ${isCirc ? '50%' : '2px'};
+                animation-delay: ${Math.random() * 2.5}s;
+                animation-duration: ${2.5 + Math.random() * 2}s;
+            `;
+            container.appendChild(el);
+        }
+
+        setTimeout(() => { container.innerHTML = ''; }, 6000);
+    }
+
+    // ----------------------------------------------------------
+    // PARTÍCULAS DE FUNDO
+    // ----------------------------------------------------------
+    (function initParticles() {
+        const container = document.getElementById('particles');
+        const colors = [
+            '#FF0018', '#FFA52C', '#FFDD00',
+            '#008018', '#0044EE', '#86007D', '#FF69B4'
+        ];
+
+        for (let i = 0; i < 22; i++) {
+            const el   = document.createElement('div');
+            const size = Math.random() * 18 + 5;
+
+            el.className = 'particle';
+            el.style.cssText = `
+                width: ${size}px;
+                height: ${size}px;
+                left: ${Math.random() * 100}%;
+                background: ${colors[Math.floor(Math.random() * colors.length)]};
+                animation-duration: ${12 + Math.random() * 14}s;
+                animation-delay: ${Math.random() * 12}s;
+            `;
+            container.appendChild(el);
+        }
+    })();
+
+    </script>
+
+</body>
+</html>
